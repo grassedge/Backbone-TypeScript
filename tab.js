@@ -86,7 +86,7 @@ var Collection;
             model.trigger('remove', model, this);
         };
         Tab.prototype.removeCurrent = function () {
-            this.removeModel(this.active);
+            this.removeModel(this.active.getModel());
         };
         Tab.prototype.nextModel = function (wrapperModel) {
             return this.at(this.indexOf(wrapperModel) + 1);
@@ -103,10 +103,15 @@ var View;
     var TabList = (function (_super) {
         __extends(TabList, _super);
         function TabList(options) {
+            this.className = 'tab';
                 _super.call(this, options);
             this.collection = new Collection.Tab();
             this.listenTo(this.collection, 'add', this.add);
         }
+        TabList.prototype.render = function () {
+            this.$el.html('<ul class="tablist"></ul><div class="tabpanels"></div>');
+            return this;
+        };
         TabList.prototype.append = function (model, opts) {
             this.insertBefore(model, opts);
         };
@@ -134,10 +139,10 @@ var View;
             this.collection.removeCurrent();
         };
         TabList.prototype.add = function (model, list) {
-            this.$el.append((new TabItem({
+            this.$('.tablist').append((new TabItem({
                 model: model
             })).render().el);
-            this.$el.after((new TabPanel({
+            this.$('.tabpanels').append((new TabPanel({
                 model: model
             })).render().el);
         };
@@ -156,6 +161,7 @@ var View;
                     return _this.model.trigger('close', _this.model);
                 }
             };
+            this.tagName = 'li';
                 _super.call(this, options);
             this.listenTo(this.model, 'select', this.selected);
             this.listenTo(this.model, 'deselect', this.deselected);

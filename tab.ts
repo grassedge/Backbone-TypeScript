@@ -69,7 +69,7 @@ module Collection {
             model.trigger('remove', model, this);
         }
         removeCurrent() {
-            this.removeModel(this.active);
+            this.removeModel(this.active.getModel());
         }
         private nextModel(wrapperModel: Backbone.Model) {
             return <TabItem>this.at(this.indexOf(wrapperModel) + 1);
@@ -84,9 +84,14 @@ module View {
     export class TabList extends Backbone.View {
         collection: Collection.Tab;
         constructor (options?: Backbone.ViewOptions) {
+            this.className = 'tab';
             super(options);
             this.collection = new Collection.Tab();
             this.listenTo(this.collection, 'add', this.add);
+        }
+        render() {
+            this.$el.html('<ul class="tablist"></ul><div class="tabpanels"></div>');
+            return this;
         }
         append(model: Backbone.Model, opts?: any) { // XXX
             this.insertBefore(model, opts);
@@ -115,8 +120,8 @@ module View {
         }
         // model event handler (view method)
         private add(model: Backbone.Model, list: Collection.Tab) {
-            this.$el.append((new TabItem({model: model})).render().el);
-            this.$el.after((new TabPanel({model: model})).render().el);
+            this.$('.tablist').append((new TabItem({model: model})).render().el);
+            this.$('.tabpanels').append((new TabPanel({model: model})).render().el);
         }
     }
 
@@ -126,6 +131,7 @@ module View {
                 'click' : () => this.model.trigger('select', this.model),
                 'dblclick' : () => this.model.trigger('close', this.model)
             };
+            this.tagName = 'li';
             super(options);
             this.listenTo(this.model, 'select', this.selected);
             this.listenTo(this.model, 'deselect', this.deselected);
